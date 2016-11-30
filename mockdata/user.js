@@ -1,5 +1,6 @@
 var names = require('./names.json');
 var traits = require('./traits.json');
+var locations = require('./locations.json');
 var randomMember = require('../util/random_member.js');
 var bcrypt = require('bcrypt');
 var db = require('../db');
@@ -7,9 +8,10 @@ var db = require('../db');
 exports.generateUser = function(callback) {
 	var firstName = randomMember(names);
 	var lastName = randomMember(names);
+	var location = randomMember(locations);
 	var email = `user_${firstName}_${lastName}@spacemate.xyz`;
 	var login_token = Math.random().toString(36);
-	var gender = Math.random() > 0.5 ? "M" : "F";
+	var gender = Math.random() > 0.5 ? "Male" : "Female";
 
 	console.log(`${firstName} ${lastName}`);
 
@@ -22,6 +24,7 @@ exports.generateUser = function(callback) {
 			gender,
 			login_token,
 			actively_looking: 1,
+			location: location,
 		},
 		function (err, data) {
 			if(err) {
@@ -29,11 +32,20 @@ exports.generateUser = function(callback) {
 				console.log(err);
 			} else {
 				console.log(data);
-				for (var i = 0; i < Math.random() * 5; i++) {
+				for (var i = 1; i < Math.random() * 10; i++) {
 					db.query("INSERT INTO user_traits SET ?",
 						{ user_id: data.insertId, trait_string: randomMember(traits) });
 				}
-				if (callback) callback();
+				db.query("INSERT INTO user_attributes SET ?",
+						 {
+							 user_id: data.insertId,
+							 same_gender_only: Math.random() > 0.5 ? 0 : 1,
+							 desired_roommate_count: Math.floor(Math.random() * 3 + 1),
+							 has_place: Math.random() > 0.5 ? 0 : 1,
+						 },
+						 function(err, res) {
+							 if (callback) callback();
+						 });
 			}
 		});
 	});
