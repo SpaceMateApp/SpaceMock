@@ -14,13 +14,17 @@ function menu_main() {
 Moonlanding Menu
 
 Select an option:
-A) Generate users`);
+A) Generate users
+B) Test bios`);
 
 	rl.question('Selection: [A] ', (answer) => {
 		switch (answer.toLowerCase()) {
 			case "":
 			case "a":
 				menu_generate_users();
+				break;
+			case "b":
+				menu_test_bios();
 				break;
 			default:
 				console.log("INVARIANT BLAH QUIT");
@@ -40,6 +44,12 @@ function menu_generate_users() {
 			mockUser.generateUser();
 		}
 	});
+}
+
+function menu_test_bios() {
+	for (var i = 0; i < 20; i++) {
+		console.log(mockUser.randomBio());
+	}
 }
 
 menu_main();
